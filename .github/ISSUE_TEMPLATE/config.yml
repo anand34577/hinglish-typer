@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Model accuracy (Lekhani)
+    url: https://huggingface.co/udgamlabs/Lekhani/discussions
+    about: Wrong top-1 spellings come from the upstream Lekhani model.

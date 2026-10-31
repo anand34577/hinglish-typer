@@ -1,0 +1,24 @@
+name: Bug report
+description: Something converts wrongly, doesn't work in an app, or crashes
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened?, description: What did you type, what did you expect, what did you get? }
+    validations: { required: true }
+  - type: dropdown
+    id: os
+    attributes: { label: Operating system, options: [Windows, macOS, "Linux (X11)", "Linux (Wayland)"] }
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Hinglish Typer version, placeholder: "0.1.1 (tray icon → About)" }
+  - type: input
+    id: app
+    attributes: { label: App you were typing in, placeholder: "Chrome / Word / VS Code / WhatsApp Desktop …" }
+  - type: checkboxes
+    id: wrong-word
+    attributes:
+      label: Is it just a wrong spelling?
+      description: The model (Lekhani) suggests 5 spellings per word; pick one with Tab or Ctrl+1–5 and it is remembered. Model accuracy issues belong upstream at Udgam Labs.
+      options: [{ label: "No, it's a bug in Hinglish Typer itself" }]

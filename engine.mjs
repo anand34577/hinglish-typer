@@ -37,7 +37,9 @@ export async function createEngine(dataDir) {
   const modelCands = (w) => {
     let r = modelCache.get(w);
     if (!r) {
-      r = tr.word(w).candidates.map((c) => c.text).filter((t) => /[अ-हक़-य़]/.test(t)); // drop stray signs/matras
+      const all = tr.word(w).candidates.map((c) => c.text).filter((t) => /^[ऄ-हक़-य़]/.test(t)); // drop stray signs/matras
+      const full = all.filter((t) => !t.endsWith("्")); // and half-letters ending in a virama
+      r = full.length ? full : all;
       if (modelCache.size > 5000) modelCache.clear();
       modelCache.set(w, r);
     }

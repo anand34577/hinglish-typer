@@ -1,51 +1,91 @@
 {
   "name": "hinglish-typer",
   "productName": "Hinglish Typer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Type Hinglish in any app and get Devanagari as you type. Offline, powered by Lekhani.",
   "type": "module",
   "main": "main.mjs",
-  "author": { "name": "Anand", "email": "anand34577@gmail.com" },
+  "author": {
+    "name": "Anand",
+    "email": "anand34577@gmail.com"
+  },
   "homepage": "https://github.com/anand34577/hinglish-typer",
-  "repository": { "type": "git", "url": "git+https://github.com/anand34577/hinglish-typer.git" },
-  "bugs": { "url": "https://github.com/anand34577/hinglish-typer/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anand34577/hinglish-typer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anand34577/hinglish-typer/issues"
+  },
   "license": "Apache-2.0",
   "scripts": {
     "start": "electron .",
     "test": "node --test \"test/*.test.mjs\"",
     "icon": "electron tools/render-icon.mjs",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "art": "electron tools/render-art.mjs && electron tools/shots.mjs"
   },
-  "dependencies": { "uiohook-napi": "^1.5.5" },
-  "devDependencies": { "electron": "^33.4.11", "electron-builder": "^25.0.0" },
+  "dependencies": {
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.0.0"
+  },
   "build": {
     "appId": "io.github.anand34577.hinglishtyper",
     "productName": "Hinglish Typer",
     "copyright": "Copyright 2026 Anand. Includes Lekhani, Copyright 2026 Udgam Labs LLP.",
     "asar": false,
     "npmRebuild": false,
-    "directories": { "output": "dist", "buildResources": "build" },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
     "files": [
-      "*.mjs", "preload.cjs", "*.html", "phrases.json", "lekhani/**",
-      "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "build/icon.png",
-      "!tools", "!test"
+      "*.mjs",
+      "preload.cjs",
+      "*.html",
+      "phrases.json",
+      "lekhani/**",
+      "LICENSE",
+      "NOTICE",
+      "THIRD_PARTY_NOTICES.md",
+      "build/icon.png",
+      "!tools",
+      "!test"
     ],
     "artifactName": "Hinglish-Typer-${version}-${os}-${arch}.${ext}",
-    "win": { "target": "nsis", "icon": "build/icon.png" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "mac": {
       "target": "dmg",
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
       "identity": null,
-      "extendInfo": { "LSUIElement": true }
+      "extendInfo": {
+        "LSUIElement": true
+      }
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "build/icon.png",
       "category": "Utility",
       "maintainer": "Anand <anand34577@gmail.com>",
       "synopsis": "Type Hinglish, get Devanagari"
-    }
+    },
+    "electronLanguages": [
+      "en-US"
+    ],
+    "compression": "maximum"
   }
 }

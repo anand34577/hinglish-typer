@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+ body { width: 1100px; height: 560px; background: #0e0f22; padding: 28px; }
+ .win { position: relative; width: 100%; height: 100%; border-radius: 14px; overflow: hidden; background: #181a24; border: 1px solid #2c2f57; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+ .top { height: 40px; background: #20222f; display: flex; align-items: center; gap: 8px; padding: 0 16px; color: #8e92ad; font-size: 15px; }
+ .dot { width: 12px; height: 12px; border-radius: 50%; background: #3a3e55; }
+ .txt { padding: 26px 34px; font: 600 38px/1.45 "Nirmala UI", "Segoe UI", sans-serif; color: #eceef5; white-space: pre-wrap; }
+ .txt .lat { color: #eceef5; font-weight: 500; }
+ .caret { display: inline-block; width: 2px; height: 1.1em; background: #7aa2ff; vertical-align: text-bottom; margin-left: 2px; }
+ #bar { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); }
+</style>
+<div class="win"><div class="top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:10px">Any app — Notes, browser, chat…</span></div>
+<div class="txt" id="t"></div><img id="bar"></div>
+<script>
+const q = new URLSearchParams(location.search);
+document.getElementById("t").innerHTML = q.get("text") + '<span class="caret"></span>';
+if (q.get("bar")) document.getElementById("bar").src = q.get("bar"); else document.getElementById("bar").remove();
+</script>

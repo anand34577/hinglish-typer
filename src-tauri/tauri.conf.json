@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Hinglish Typer",
+  "version": "0.2.0",
+  "identifier": "io.github.anand34577.hinglishtyper",
+  "build": {
+    "frontendDist": "../web",
+    "beforeBuildCommand": "node tools/prepare-web.mjs",
+    "beforeDevCommand": "node tools/prepare-web.mjs"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "security": { "csp": null },
+    "windows": [
+      {
+        "label": "engine", "url": "engine.html", "title": "Hinglish Typer engine",
+        "visible": false, "width": 100, "height": 100, "decorations": false, "skipTaskbar": true, "focus": false
+      },
+      {
+        "label": "box", "url": "index.html", "title": "Hinglish Typer",
+        "visible": false, "width": 620, "height": 190, "decorations": false, "resizable": false, "alwaysOnTop": true,
+        "skipTaskbar": true, "maximizable": false, "minimizable": false, "shadow": true, "backgroundColor": "#1b1d23"
+      },
+      {
+        "label": "overlay", "url": "overlay.html", "title": "Hinglish suggestions",
+        "visible": false, "width": 640, "height": 130, "decorations": false, "transparent": true, "resizable": false,
+        "alwaysOnTop": true, "skipTaskbar": true, "shadow": false, "focus": false, "focusable": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "dmg", "deb", "appimage"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "category": "Utility",
+    "shortDescription": "Type Hinglish, get Devanagari",
+    "copyright": "Copyright 2026 Anand. Includes Lekhani, Copyright 2026 Udgam Labs LLP.",
+    "license": "Apache-2.0",
+    "licenseFile": "../LICENSE",
+    "resources": { "../NOTICE": "NOTICE", "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md" },
+    "windows": { "nsis": { "installMode": "currentUser", "compression": "lzma" } },
+    "macOS": { "minimumSystemVersion": "10.15" }
+  }
+}

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "tauri-*"]
   pull_request:
 
 permissions:
@@ -10,22 +10,33 @@ permissions:
 
 jobs:
   test:
-    name: Test (${{ matrix.os }})
+    name: Test + build check (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
+            libxdo-dev libx11-dev libxtst-dev libxi-dev libssl-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
       - run: npm ci
-        env:
-          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
       - run: npm test
       - name: Syntax check
         shell: bash
-        run: for f in main.mjs engine.mjs live.mjs; do node --check "$f"; done
+        run: for f in web/engine.mjs web/live.mjs; do node --check "$f"; done
+      - run: node tools/prepare-web.mjs
+      - name: Compile the Tauri app
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml

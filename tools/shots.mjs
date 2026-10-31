@@ -1,11 +1,11 @@
-// Builds docs/screenshot-*.png from the app's real UI (overlay.html + preload) fed by the real engine:
+// Builds docs/screenshot-*.png from the app's real UI (web/overlay.html + a preload stub) fed by the real engine:
 //   npx electron tools/shots.mjs
 import { app, BrowserWindow } from "electron";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { createEngine } from "../engine.mjs";
+import { Transliterator } from "../lekhani/translit.js";
+import { createEngine } from "../web/engine.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url)), root = path.join(here, "..");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -20,12 +20,18 @@ async function render(win, url, w, h) {
 }
 
 app.whenReady().then(async () => {
-  engine = await createEngine(fs.mkdtempSync(path.join(os.tmpdir(), "hx-shots-")));
+  const bytes = (f) => new Uint8Array(fs.readFileSync(path.join(root, "lekhani", f)));
+  engine = await createEngine({
+    Transliterator,
+    assets: { model: bytes("model.q4.gz"), json: bytes("model.json.gz"), words: bytes("words.bin.gz"),
+      rerank: JSON.parse(fs.readFileSync(path.join(root, "lekhani", "rerank.json"), "utf8")) },
+    phrases: JSON.parse(fs.readFileSync(path.join(root, "phrases.json"), "utf8")),
+  });
 
   // 1) the suggestion bar, rendered by the real overlay.html
   const bar = new BrowserWindow({ width: 640, height: 130, show: false, transparent: true, frame: false, useContentSize: true,
-    webPreferences: { offscreen: true, preload: path.join(root, "preload.cjs"), contextIsolation: true } });
-  await bar.loadFile(path.join(root, "overlay.html"));
+    webPreferences: { offscreen: true, preload: path.join(here, "shots-preload.cjs"), contextIsolation: true } });
+  await bar.loadFile(path.join(root, "web", "overlay.html"));
   const done = ["shaam", "ko"], part = "mil", spellings = engine.spellings(part).slice(0, 5);
   bar.webContents.send("state", { roman: part, spellings, sel: 0, phrases: engine.phrases(done, part).map((p) => p.dev), base: 5 });
   await sleep(600);

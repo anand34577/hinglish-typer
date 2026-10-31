@@ -1,7 +1,8 @@
 <!doctype html>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' ipc: http://ipc.localhost; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
 <title>Hinglish suggestions</title>
+<script src="bridge.js"></script>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }

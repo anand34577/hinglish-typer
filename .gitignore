@@ -3,3 +3,7 @@ dist/
 *.log
 tmpdata/
 .DS_Store
+web/lekhani/
+web/phrases.json
+src-tauri/target/
+src-tauri/gen/

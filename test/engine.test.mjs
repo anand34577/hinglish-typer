@@ -1,12 +1,18 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
 import { test } from "node:test";
-import { createEngine } from "../engine.mjs";
+import { Transliterator } from "../lekhani/translit.js";
+import { createEngine } from "../web/engine.mjs";
 
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hx-"));
-const engine = await createEngine(dir);
+const read = (f) => new Uint8Array(fs.readFileSync(new URL("../lekhani/" + f, import.meta.url)));
+const engine = await createEngine({
+  Transliterator,
+  assets: {
+    model: read("model.q4.gz"), json: read("model.json.gz"), words: read("words.bin.gz"),
+    rerank: JSON.parse(fs.readFileSync(new URL("../lekhani/rerank.json", import.meta.url), "utf8")),
+  },
+  phrases: JSON.parse(fs.readFileSync(new URL("../phrases.json", import.meta.url), "utf8")),
+});
 
 test("transliterates common Hinglish", () => {
   const out = engine.analyze("aaj office mein meeting hai").map((t) => (t.cands ? t.cands[0] : t.src)).join("");

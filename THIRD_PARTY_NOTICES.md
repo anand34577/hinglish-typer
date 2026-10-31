@@ -20,14 +20,16 @@ Lekhani's own credits, reproduced from its NOTICE:
 ## Runtime dependencies
 | Component | License | Link |
 |---|---|---|
-| Electron (app shell, Chromium, Node.js) | MIT (plus Chromium's third-party licenses, shipped as `LICENSES.chromium.html`) | https://github.com/electron/electron |
-| uiohook-napi (global keyboard hook, key synthesis) | MIT | https://github.com/SnosMe/uiohook-napi |
-| libuiohook (bundled in uiohook-napi) | LGPL-3.0-or-later | https://github.com/kwhat/libuiohook |
+| Tauri (app shell, tray, windows) and its plugins: global-shortcut, clipboard-manager, single-instance, autostart, opener | MIT or Apache-2.0 | https://github.com/tauri-apps/tauri · https://github.com/tauri-apps/plugins-workspace |
+| rdev, RustDesk's fork (global keyboard hook, key synthesis) | MIT | https://github.com/fufesou/rdev (upstream: https://github.com/Narsil/rdev) |
+| serde, serde_json | MIT or Apache-2.0 | https://github.com/serde-rs/serde |
+| Further Rust crates pulled in by the above (wry, tao, global-hotkey, arboard, ...) | MIT, Apache-2.0, BSD or similar permissive licenses | `cargo tree` / `cargo about` in `src-tauri/` lists them all |
 
-libuiohook is distributed unmodified inside uiohook-napi's prebuilt binaries; its source is available at the link above.
+The app uses the operating system's web view (Microsoft Edge WebView2 on Windows, WebKit on macOS and Linux) instead of
+bundling a browser; those are separate system components with their own licenses.
 
 ## Build tooling (not shipped)
-electron-builder (MIT).
+Tauri CLI (MIT or Apache-2.0).
 
 ## Original to this project
 The app code, the phrase list (`phrases.json`) and the icon (`tools/icon.svg`) are Copyright 2026 Anand, Apache-2.0.

@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' ipc: http://ipc.localhost; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>About Hinglish Typer</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 20px 24px; background: #1b1d23; color: #e8e9ed; font: 14px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 10px; }
+  p { margin: 0 0 10px; color: #c4c7d0; }
+  .btns { display: flex; gap: 8px; margin-top: 16px; }
+  button { padding: 6px 14px; font: inherit; color: inherit; background: #262932; border: 1px solid #3a3e4a; border-radius: 7px; cursor: pointer; }
+  button:hover { border-color: #4d8dff; }
+</style>
+<h1 id="t">Hinglish Typer</h1>
+<p>Offline Hinglish to Devanagari typing.</p>
+<p>Transliteration by Lekhani, Copyright 2026 Udgam Labs LLP (Apache-2.0; word list CC0).</p>
+<p>Lekhani builds on AI4Bharat's Aksharantar, IndicXlit and IndicCorp v2, and the CMU Pronouncing Dictionary.</p>
+<p>Also: Tauri (MIT / Apache-2.0), rdev (MIT), and the Rust crates listed in THIRD_PARTY_NOTICES.md.</p>
+<p>Full credits: THIRD_PARTY_NOTICES.md</p>
+<div class="btns">
+  <button onclick="window.__TAURI__.core.invoke('open_link', { which: 'lekhani' })">Open Lekhani page</button>
+  <button onclick="window.__TAURI__.core.invoke('open_link', { which: 'github' })">Project on GitHub</button>
+  <button onclick="window.__TAURI__.window.getCurrentWindow().close()">Close</button>
+</div>
+<script>
+window.__TAURI__.core.invoke("app_version").then((v) => (document.getElementById("t").textContent = "Hinglish Typer " + v));
+</script>

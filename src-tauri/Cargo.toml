@@ -1,0 +1,33 @@
+[package]
+name = "hinglish-typer"
+version = "0.2.0"
+description = "Type Hinglish in any app and get Devanagari as you type. Offline, powered by Lekhani."
+authors = ["Anand <anand34577@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/anand34577/hinglish-typer"
+edition = "2021"
+
+[lib]
+name = "hinglish_typer_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-opener = "2"
+rdev = { git = "https://github.com/fufesou/rdev", rev = "0904f23ce496e255461a98848b85c11fa5a62eab" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

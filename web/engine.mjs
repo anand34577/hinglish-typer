@@ -1,33 +1,19 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
 const MAX_LEARNED = 3000;
 
 // Lekhani model + learned preferences (word spellings, phrases) + built-in phrase list.
-export async function createEngine(dataDir) {
-  const d = path.join(here, "lekhani");
-  const { Transliterator } = await import(pathToFileURL(path.join(d, "translit.js")).href);
-  const tr = await Transliterator.load({
-    model: fs.readFileSync(path.join(d, "model.q4.gz")),
-    json: fs.readFileSync(path.join(d, "model.json.gz")),
-    words: fs.readFileSync(path.join(d, "words.bin.gz")),
-    rerank: JSON.parse(fs.readFileSync(path.join(d, "rerank.json"), "utf8")),
-  });
+// Environment-free: the caller supplies the Lekhani `Transliterator` class, the model assets (URLs or bytes,
+// as accepted by Transliterator.load), the stored `prefs` and a `savePrefs(obj)` callback.
+export async function createEngine({ Transliterator, assets, phrases, prefs: stored = {}, savePrefs = () => {} }) {
+  const tr = await Transliterator.load(assets);
 
-  const prefFile = path.join(dataDir, "prefs.json");
-  let prefs = { words: {}, phrases: {} };
-  try { prefs = { ...prefs, ...JSON.parse(fs.readFileSync(prefFile, "utf8")) }; } catch {}
+  const prefs = { words: {}, phrases: {}, ...stored };
   let saveTimer;
   const save = () => {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      try { fs.mkdirSync(dataDir, { recursive: true }); fs.writeFileSync(prefFile, JSON.stringify(prefs)); } catch {}
-    }, 1500);
+    saveTimer = setTimeout(() => { try { savePrefs(prefs); } catch {} }, 1500);
   };
 
-  const builtin = JSON.parse(fs.readFileSync(path.join(here, "phrases.json"), "utf8")).map((p) => p.split(" "));
+  const builtin = phrases.map((p) => p.split(" "));
   const phraseList = () => [
     ...builtin.map((w) => ({ w, n: 1 })),
     ...Object.entries(prefs.phrases).map(([k, n]) => ({ w: k.split(" "), n: n + 1 })),

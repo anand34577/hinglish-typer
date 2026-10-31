@@ -21,7 +21,7 @@ Get the installer for your system from the [latest release](https://github.com/a
 Windows `.exe`, macOS `.dmg` (Intel and Apple Silicon), Linux `.AppImage` / `.deb`. Builds are unsigned, so Windows
 SmartScreen and macOS Gatekeeper will ask you to confirm the first launch. Checksums are in `SHA256SUMS.txt`.
 
-Or run from source: `npm install && npm start`.
+Or run from source (needs [Rust](https://rustup.rs/) and Node): `npm install && npm run build`.
 
 <p align="center"><img src="docs/screenshot-live.png" width="760" alt="Typing kaise ho dost, aaj shaam ko mil… with the suggestion bar showing spellings and a phrase completion"></p>
 
@@ -57,9 +57,9 @@ type the way you already do in chat and fixes it on the fly, anywhere, without s
 </table>
 
 ## FAQ
-**Why is the download ~70–100 MB when the model is under 1 MB?** The model is tiny; the app shell is
-[Electron](https://www.electronjs.org/), which bundles a whole browser engine. A much smaller native build (a few MB)
-is on the [roadmap](#roadmap).
+**Why is the download only a few MB?** The model is under 1 MB and the app is built with [Tauri](https://tauri.app/),
+which uses your system's web view (Edge WebView2 on Windows, WebKit on macOS/Linux) instead of bundling a browser.
+Versions up to 0.1.x used Electron (~70–100 MB installers).
 
 **Does it send what I type anywhere?** No. There are no network calls. Learned spellings stay in `prefs.json` locally.
 
@@ -69,7 +69,7 @@ is on the [roadmap](#roadmap).
 block key hooks. Use the typing box (Ctrl+Shift+H) there.
 
 ## Roadmap
-- [ ] Lightweight native build (Tauri) to cut installers from ~100 MB to a few MB
+- [x] Lightweight native build (Tauri): installers went from ~100 MB to a few MB
 - [ ] Signed installers (Windows, macOS notarisation)
 - [ ] Wayland support
 - [ ] Other keyboard layouts
@@ -89,10 +89,10 @@ block key hooks. Use the typing box (Ctrl+Shift+H) there.
 ```bash
 npm install
 npm test            # engine tests
-npm start           # run the app
+npm run dev         # run the app (builds the Rust shell on first run)
 npm run icon        # re-render build/icon.png from tools/icon.svg
 npm run art         # regenerate banner, promo images and screenshots in docs/
-npm run dist        # build installers for the current OS into dist/
+npm run build       # build installers for the current OS into src-tauri/target/release/bundle/
 ```
 Screenshots and promo images are generated from the app's real UI and engine (`tools/`), not hand-drawn.
 CI runs the tests on all three OSes. Pushing a tag `vX.Y.Z` that matches `package.json` builds installers on Windows,
@@ -102,8 +102,8 @@ macOS and Linux and publishes them, with checksums, to a GitHub Release (`.githu
 - **Lekhani**, Copyright 2026 Udgam Labs LLP: model, runner (Apache-2.0) and word list (CC0).
   <https://huggingface.co/udgamlabs/Lekhani>. Lekhani itself builds on AI4Bharat's Aksharantar, IndicXlit and
   IndicCorp v2, and the CMU Pronouncing Dictionary.
-- [Electron](https://github.com/electron/electron) (MIT), [uiohook-napi](https://github.com/SnosMe/uiohook-napi) (MIT)
-  with [libuiohook](https://github.com/kwhat/libuiohook) (LGPL-3.0).
+- [Tauri](https://github.com/tauri-apps/tauri) (MIT / Apache-2.0) and its plugins, and
+  [rdev](https://github.com/Narsil/rdev) (MIT) for the global keyboard hook.
 
 Full details and licenses: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This project is licensed under
 [Apache-2.0](LICENSE); see [NOTICE](NOTICE). Not affiliated with Udgam Labs or Google. Contributions welcome: see [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md); report security issues per [SECURITY.md](SECURITY.md).

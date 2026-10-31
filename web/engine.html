@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Hinglish Typer engine</title>
+<script type="module">
+import { Transliterator } from "./lekhani/translit.js";
+import { createEngine } from "./engine.mjs";
+import { createLive } from "./live.mjs";
+
+const { invoke } = window.__TAURI__.core;
+const { listen, emit } = window.__TAURI__.event;
+
+const abs = (p) => new URL(p, location.href).href;
+const stored = JSON.parse(await invoke("prefs_load") || "{}");
+const engine = await createEngine({
+  Transliterator,
+  assets: {
+    model: abs("lekhani/model.q4.gz"),
+    json: abs("lekhani/model.json.gz"),
+    words: abs("lekhani/words.bin.gz"),
+    rerank: await (await fetch("lekhani/rerank.json")).json(),
+  },
+  phrases: await (await fetch("phrases.json")).json(),
+  prefs: stored,
+  savePrefs: (p) => invoke("prefs_save", { json: JSON.stringify(p) }),
+});
+
+const live = createLive({
+  engine,
+  io: {
+    setHook: (on) => invoke("set_hook", { on }),
+    setShortcuts: (on) => invoke("bind_shortcuts", { on }),
+    update: (state) => invoke("overlay_update", { state }),
+    replace: (n, text, enter) => invoke("replace_text", { backspaces: n, text, enter }),
+  },
+});
+
+async function setLive(on) {
+  let err = null;
+  try { live.set(on); } catch (e) { err = e; on = false; }
+  await invoke("live_state", { on, error: err ? String(err.message ?? err) : null });
+}
+
+// Box page: analysis requests and learned spellings.
+listen("analyze", ({ payload }) => emit("analyze-result", { id: payload.id, toks: engine.analyze(payload.text) }));
+listen("learn", ({ payload }) => engine.learnWord(payload.src, payload.text));
+
+listen("key", ({ payload }) => live.onKey(payload));
+listen("shortcut", ({ payload }) => live.onShortcut(payload));
+listen("toggle-live", () => setLive(!live.enabled));
+
+const { off } = await invoke("engine_ready");
+await setLive(!off);
+</script>

@@ -1,7 +1,7 @@
 name: Release
 
-# Push a tag like v0.1.0 (it must match "version" in package.json) to build installers for
-# Windows, macOS (Intel + Apple Silicon) and Linux, and publish them to a GitHub Release.
+# Push a tag like v0.2.0 (it must match "version" in package.json and src-tauri/tauri.conf.json) to build
+# installers for Windows, macOS (Intel + Apple Silicon) and Linux, and publish them to a GitHub Release.
 on:
   push:
     tags: ["v*"]
@@ -12,45 +12,63 @@ permissions:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
+    name: Build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
         include:
-          - os: windows-latest
-            args: --win --x64
-          - os: macos-latest
-            args: --mac --x64 --arm64
-          - os: ubuntu-latest
-            args: --linux --x64
+          - { name: windows-x64, os: windows-latest, target: "" }
+          - { name: macos-arm64, os: macos-latest, target: aarch64-apple-darwin }
+          - { name: macos-x64, os: macos-latest, target: x86_64-apple-darwin }
+          - { name: linux-x64, os: ubuntu-22.04, target: "" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Check tag matches package version
+      - name: Check tag matches versions
         if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
           v="$(node -p "require('./package.json').version")"
-          [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "Tag ${GITHUB_REF_NAME} != package.json version v$v"; exit 1; }
+          t="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          c="$(grep -m1 '^version' src-tauri/Cargo.toml | cut -d'"' -f2)"
+          [ "v$v" = "${GITHUB_REF_NAME}" ] && [ "$t" = "$v" ] && [ "$c" = "$v" ] || { echo "Tag ${GITHUB_REF_NAME} != package.json $v / tauri.conf.json $t / Cargo.toml $c"; exit 1; }
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
+            libxdo-dev libx11-dev libxtst-dev libxi-dev libssl-dev
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.name }}
       - run: npm ci
       - run: npm test
       - name: Build installers
-        run: npx electron-builder ${{ matrix.args }} --publish never
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.target }}" ]; then npx tauri build --target "${{ matrix.target }}" --ci; else npx tauri build --ci; fi
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir out
+          find src-tauri/target -path '*/release/bundle/*' -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.AppImage' \) | while read -r f; do
+            b="$(basename "$f")"
+            cp "$f" "out/${b// /-}"
+          done
+          ls -la out
       - uses: actions/upload-artifact@v4
         with:
-          name: installers-${{ matrix.os }}
+          name: installers-${{ matrix.name }}
           if-no-files-found: error
-          path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.deb
+          path: out/*
 
   publish:
     name: Publish GitHub Release
@@ -78,11 +96,12 @@ jobs:
             --generate-notes \
             --notes-file <(cat <<'NOTES'
           Offline Hinglish → Devanagari typing for Windows, macOS and Linux, powered by Lekhani (Udgam Labs, Apache-2.0).
+          Installers are a few MB: this release uses Tauri and the system web view instead of bundling a browser.
 
           **Install**
-          - Windows: run the `.exe` installer (SmartScreen may warn: the build is unsigned, choose *More info → Run anyway*).
+          - Windows: run the `.exe` installer (SmartScreen may warn: the build is unsigned, choose *More info → Run anyway*). Needs the Edge WebView2 runtime (preinstalled on Windows 10/11).
           - macOS: open the `.dmg`, drag to Applications, then right-click → Open the first time (unsigned). Grant Accessibility and Input Monitoring.
-          - Linux: `chmod +x *.AppImage && ./Hinglish-Typer-*.AppImage`, or install the `.deb`. X11 session required for live typing.
+          - Linux: install the `.deb`, or `chmod +x *.AppImage && ./Hinglish-Typer_*.AppImage`. X11 session required for live typing.
 
           Verify downloads with `SHA256SUMS.txt`. See THIRD_PARTY_NOTICES.md for attributions.
           NOTES

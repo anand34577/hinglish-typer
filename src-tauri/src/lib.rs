@@ -294,9 +294,9 @@ pub fn run() {
             engine_ready, live_state, open_link, app_version
         ])
         .setup(move |app| {
-            let h = app.handle();
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            let h = app.handle();
 
             let bar = win(h, "overlay");
             let _ = bar.set_ignore_cursor_events(true);

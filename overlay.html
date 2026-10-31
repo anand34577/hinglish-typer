@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Hinglish suggestions</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; overflow: hidden; font: 14px system-ui, sans-serif; user-select: none; }
+  body { display: flex; align-items: flex-end; justify-content: center; height: 100vh; padding: 6px; }
+  #card { display: none; max-width: 100%; padding: 8px 10px; background: rgba(27, 29, 35, .96); color: #e8e9ed; border: 1px solid #3a3e4a; border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+  #card.on { display: block; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  #roman { color: #8a90a0; margin-right: 4px; font-size: 13px; }
+  #roman b { color: #e8e9ed; font-weight: 600; }
+  .dev { font-family: "Nirmala UI", "Noto Sans Devanagari", "Kohinoor Devanagari", sans-serif; }
+  .c { padding: 2px 9px; border-radius: 7px; background: #262932; border: 1px solid #3a3e4a; font-size: 18px; white-space: nowrap; }
+  .c.sel { background: #2f5fb8; border-color: #4d8dff; }
+  .c small { color: #9aa0b0; margin-right: 6px; font: 11px system-ui; }
+  .c.ph { background: #2a2540; border-color: #54487f; font-size: 15px; }
+  .c.ph.small { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+  #phr { margin-top: 6px; }
+  #foot { margin-top: 6px; color: #6b7080; font-size: 11px; }
+  #toast { display: none; padding: 8px 16px; border-radius: 20px; background: rgba(27,29,35,.96); color: #e8e9ed; border: 1px solid #3a3e4a; font-size: 14px; }
+  #toast.on { display: block; }
+</style>
+<div id="card">
+  <div class="row"><span id="roman"></span><span id="sp" class="row"></span></div>
+  <div id="phr" class="row"></div>
+  <div id="foot">Space insert · Tab next · Ctrl+1–5 pick · Ctrl+6–8 phrase · Esc keep English</div>
+</div>
+<div id="toast"></div>
+<script>
+const $ = (id) => document.getElementById(id), card = $("card"), toast = $("toast");
+function chip(n, text, cls) {
+  const s = document.createElement("span"); s.className = "c dev " + cls;
+  const k = document.createElement("small"); k.textContent = n; s.append(k, text); return s;
+}
+hx.onState((s) => {
+  if (!s) { card.classList.remove("on"); return; }
+  toast.classList.remove("on"); card.classList.add("on");
+  $("roman").replaceChildren(document.createTextNode("typing "), Object.assign(document.createElement("b"), { textContent: s.roman }));
+  $("sp").replaceChildren(...s.spellings.map((t, i) => chip(i + 1, t, i === s.sel ? "sel" : "")));
+  $("phr").replaceChildren(...s.phrases.map((t, i) => chip(s.base + i + 1, t, "ph")));
+  $("phr").style.display = s.phrases.length ? "flex" : "none";
+});
+let tt;
+hx.onToast((m) => {
+  card.classList.remove("on"); toast.textContent = m; toast.classList.add("on");
+  clearTimeout(tt); tt = setTimeout(() => toast.classList.remove("on"), 1400);
+});
+</script>

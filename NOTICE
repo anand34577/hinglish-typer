@@ -1,0 +1,10 @@
+Hinglish Typer
+Copyright 2026 Anand
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes Lekhani, a Hindi transliteration model and runner by Udgam Labs LLP
+(Copyright 2026 Udgam Labs LLP), Apache-2.0 for the model and runner, CC0 for the word list.
+Source: https://huggingface.co/udgamlabs/Lekhani  ·  https://udgamlabs.com/models/lekhani
+The original Lekhani NOTICE and LICENSE are kept unchanged in lekhani/. Full third-party credits are in
+THIRD_PARTY_NOTICES.md.

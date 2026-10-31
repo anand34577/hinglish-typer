@@ -1,0 +1,70 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Hinglish Typer</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 14px 16px; background: #1b1d23; color: #e8e9ed; font: 15px system-ui, sans-serif; user-select: none; }
+  #in { width: 100%; padding: 8px 10px; font: inherit; color: inherit; background: #262932; border: 1px solid #3a3e4a; border-radius: 8px; outline: none; user-select: text; }
+  #in:focus { border-color: #4d8dff; }
+  #out { margin: 12px 2px 8px; min-height: 36px; font: 24px "Nirmala UI", "Noto Sans Devanagari", "Kohinoor Devanagari", sans-serif; line-height: 1.4; word-break: break-word; }
+  #out:empty::before { content: "देवनागरी यहाँ दिखेगी"; color: #555a68; }
+  #cands { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+  .c { padding: 2px 9px; border-radius: 6px; background: #262932; border: 1px solid #3a3e4a; font-size: 16px; cursor: pointer; }
+  .c.sel { background: #2f5fb8; border-color: #4d8dff; }
+  .c small { color: #8a90a0; margin-right: 5px; font-size: 11px; }
+  #hint { position: fixed; right: 16px; bottom: 8px; color: #6b7080; font-size: 11px; }
+</style>
+<input id="in" placeholder="Type Hinglish… e.g. kaise ho" autofocus autocomplete="off" spellcheck="false">
+<div id="out"></div>
+<div id="cands"></div>
+<div id="hint">Enter insert · Tab next spelling · Alt+1-8 pick · Esc close</div>
+<script>
+const $in = document.getElementById("in"), $out = document.getElementById("out"), $c = document.getElementById("cands");
+let toks = [], pick = new Map(), seq = 0; // pick: token index -> chosen candidate index
+
+const chosen = (t, i) => (t.cands ? t.cands[pick.get(i) ?? 0] : t.src);
+const lastWord = () => { for (let i = toks.length - 1; i >= 0; i--) if (toks[i].cands) return i; return -1; };
+
+function render() {
+  $out.textContent = toks.map(chosen).join("");
+  const i = lastWord(); $c.textContent = "";
+  if (i < 0) return;
+  toks[i].cands.forEach((c, k) => {
+    const b = document.createElement("span");
+    b.className = "c" + (k === (pick.get(i) ?? 0) ? " sel" : "");
+    const n = document.createElement("small"); n.textContent = k + 1;
+    b.append(n, c);
+    b.onmousedown = (e) => { e.preventDefault(); select(k); };
+    $c.append(b);
+  });
+}
+function select(k) { const i = lastWord(); if (i >= 0 && k < toks[i].cands.length) { pick.set(i, k); render(); } }
+
+async function update() {
+  const my = ++seq;
+  const t = await hx.analyze($in.value);
+  if (my !== seq) return;
+  // keep manual picks only for words whose text is unchanged
+  const keep = new Map();
+  t.forEach((n, i) => { if (toks[i] && toks[i].src === n.src && pick.has(i)) keep.set(i, pick.get(i)); });
+  pick = keep; toks = t; render();
+}
+
+$in.addEventListener("input", update);
+$in.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const picks = [...pick].filter(([, k]) => k > 0).map(([i, k]) => ({ src: toks[i].src, text: toks[i].cands[k] }));
+    hx.commit($out.textContent, picks);
+  }
+  else if (e.key === "Escape") hx.hide();
+  else if (e.key === "Tab") {
+    e.preventDefault(); const i = lastWord(); if (i < 0) return;
+    const n = toks[i].cands.length, cur = pick.get(i) ?? 0;
+    select((cur + (e.shiftKey ? n - 1 : 1)) % n);
+  } else if (e.altKey && /^[1-8]$/.test(e.key)) { e.preventDefault(); select(+e.key - 1); }
+});
+hx.onShown(() => { $in.value = ""; toks = []; pick.clear(); render(); $in.focus(); });
+</script>

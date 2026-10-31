@@ -59,7 +59,7 @@ jobs:
         shell: bash
         run: |
           mkdir out
-          find src-tauri/target -path '*/release/bundle/*' -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.AppImage' \) | while read -r f; do
+          find src-tauri/target -path '*/release/bundle/*' -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.deb' \) | while read -r f; do
             b="$(basename "$f")"
             cp "$f" "out/${b// /-}"
           done
@@ -101,7 +101,7 @@ jobs:
           **Install**
           - Windows: run the `.exe` installer (SmartScreen may warn: the build is unsigned, choose *More info → Run anyway*). Needs the Edge WebView2 runtime (preinstalled on Windows 10/11).
           - macOS: open the `.dmg`, drag to Applications, then right-click → Open the first time (unsigned). Grant Accessibility and Input Monitoring.
-          - Linux: install the `.deb`, or `chmod +x *.AppImage && ./Hinglish-Typer_*.AppImage`. X11 session required for live typing.
+          - Linux: install the `.deb` (`sudo apt install ./Hinglish-Typer_*.deb`). X11 session required for live typing.
 
           Verify downloads with `SHA256SUMS.txt`. See THIRD_PARTY_NOTICES.md for attributions.
           NOTES

@@ -18,7 +18,7 @@ model bundled in `lekhani/`. See [Credits](#credits).
 
 ## Download
 Get the installer for your system from the [latest release](https://github.com/anand34577/hinglish-typer/releases/latest):
-Windows `.exe`, macOS `.dmg` (Intel and Apple Silicon), Linux `.AppImage` / `.deb`. Builds are unsigned, so Windows
+Windows `.exe`, macOS `.dmg` (Intel and Apple Silicon), Linux `.deb`. Builds are unsigned, so Windows
 SmartScreen and macOS Gatekeeper will ask you to confirm the first launch. Checksums are in `SHA256SUMS.txt`.
 
 Or run from source (needs [Rust](https://rustup.rs/) and Node): `npm install && npm run build`.

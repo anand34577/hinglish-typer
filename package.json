@@ -23,6 +23,7 @@
     "productName": "Hinglish Typer",
     "copyright": "Copyright 2026 Anand. Includes Lekhani, Copyright 2026 Udgam Labs LLP.",
     "asar": false,
+    "npmRebuild": false,
     "directories": { "output": "dist", "buildResources": "build" },
     "files": [
       "*.mjs", "preload.cjs", "*.html", "phrases.json", "lekhani/**",

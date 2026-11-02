@@ -11,6 +11,8 @@ const { listen, emit } = window.__TAURI__.event;
 
 const abs = (p) => new URL(p, location.href).href;
 const stored = JSON.parse(await invoke("prefs_load") || "{}");
+let latest = stored, liveOn = stored.live !== false;
+const persist = () => invoke("prefs_save", { json: JSON.stringify({ ...latest, live: liveOn }) });
 const engine = await createEngine({
   Transliterator,
   assets: {
@@ -21,7 +23,7 @@ const engine = await createEngine({
   },
   phrases: await (await fetch("phrases.json")).json(),
   prefs: stored,
-  savePrefs: (p) => invoke("prefs_save", { json: JSON.stringify(p) }),
+  savePrefs: (p) => { latest = p; return persist(); },
 });
 
 const live = createLive({
@@ -37,6 +39,7 @@ const live = createLive({
 async function setLive(on) {
   let err = null;
   try { live.set(on); } catch (e) { err = e; on = false; }
+  if (!err) { liveOn = on; persist(); }
   await invoke("live_state", { on, error: err ? String(err.message ?? err) : null });
 }
 
@@ -49,5 +52,5 @@ listen("shortcut", ({ payload }) => live.onShortcut(payload));
 listen("toggle-live", () => setLive(!live.enabled));
 
 const { off } = await invoke("engine_ready");
-await setLive(!off);
+await setLive(!off && liveOn);
 </script>

@@ -2,6 +2,10 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [Unreleased]
+### Fixed
+- Live typing now remembers its last on/off state across restarts and reboots instead of always starting ON.
+
 ## [0.2.0] - 2026-10-31
 ### Changed
 - Rebuilt on Tauri v2 and Rust (system web view, `rdev` keyboard hook): installers are a few MB instead of ~70–100 MB. Behaviour is unchanged.

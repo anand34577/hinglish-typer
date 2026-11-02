@@ -2,7 +2,7 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [0.2.1] - 2026-11-02
 ### Fixed
 - Live typing now remembers its last on/off state across restarts and reboots instead of always starting ON.
 

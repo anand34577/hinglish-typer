@@ -1,6 +1,6 @@
 [package]
 name = "hinglish-typer"
-version = "0.2.0"
+version = "0.2.1"
 description = "Type Hinglish in any app and get Devanagari as you type. Offline, powered by Lekhani."
 authors = ["Anand <anand34577@gmail.com>"]
 license = "Apache-2.0"

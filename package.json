@@ -1,7 +1,7 @@
 {
   "name": "hinglish-typer",
   "productName": "Hinglish Typer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Type Hinglish in any app and get Devanagari as you type. Offline, powered by Lekhani.",
   "type": "module",
   "author": {
